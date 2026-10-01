@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +20,7 @@ class CrafLensApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         useMaterial3: true,
       ),
-      home: const ArtisanDashboard(),
+      home: const LoginScreen(),
     );
   }
 }
