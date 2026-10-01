@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'buyer_dashboard.dart';
 import 'main.dart'; // To navigate to ArtisanDashboard after login
 
 class LoginScreen extends StatefulWidget {
@@ -18,18 +19,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Connect to Greeshman's Python API here later
       final email = _emailController.text;
       final password = _passwordController.text;
 
       print("Action: ${_isLogin ? 'Login' : 'Sign Up'}");
       print("Email: $email | Role: $_selectedRole");
 
-      // For now, bypass the backend and jump straight to your dashboard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ArtisanDashboard()),
-      );
+      // Route based on the selected role
+      if (_selectedRole == 'Artisan') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ArtisanDashboard()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BuyerDashboard()),
+        );
+      }
     }
   }
 
