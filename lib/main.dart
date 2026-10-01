@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(const CrafLensApp());
@@ -29,7 +31,6 @@ class ArtisanDashboard extends StatefulWidget {
 }
 
 class _ArtisanDashboardState extends State<ArtisanDashboard> {
-  // A temporary mock list of products until the Python backend is connected
   final List<Map<String, String>> _catalog = [
     {"title": "Terracotta Clay Pot", "tags": "Handmade, Pottery"},
     {"title": "Woven Bamboo Basket", "tags": "Eco-friendly, Storage"},
@@ -59,12 +60,82 @@ class _ArtisanDashboardState extends State<ArtisanDashboard> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Upload screen coming soon!')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const UploadScreen()),
           );
         },
         icon: const Icon(Icons.add_a_photo),
         label: const Text('New Product'),
+      ),
+    );
+  }
+}
+
+class UploadScreen extends StatefulWidget {
+  const UploadScreen({super.key});
+
+  @override
+  State<UploadScreen> createState() => _UploadScreenState();
+}
+
+class _UploadScreenState extends State<UploadScreen> {
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _takePhoto() async {
+    // This triggers the native Android camera
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      setState(() {
+        _imageFile = File(photo.path);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Upload Product'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_imageFile != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(_imageFile!, height: 300, fit: BoxFit.cover),
+                ),
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text('No product photo captured yet.', style: TextStyle(fontSize: 16)),
+              ),
+            ElevatedButton.icon(
+              onPressed: _takePhoto,
+              icon: const Icon(Icons.camera_alt),
+              label: const Text('Open Camera'),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
+            ),
+            const SizedBox(height: 20),
+            if (_imageFile != null)
+              FilledButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Image ready for API upload!')),
+                  );
+                },
+                icon: const Icon(Icons.cloud_upload),
+                label: const Text('Analyze & Upload'),
+              ),
+          ],
+        ),
       ),
     );
   }
