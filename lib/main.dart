@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const CrafLensApp());
@@ -81,14 +82,56 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   File? _imageFile;
+  bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _takePhoto() async {
-    // This triggers the native Android camera
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       setState(() {
         _imageFile = File(photo.path);
+      });
+    }
+  }
+
+  Future<void> _uploadToServer() async {
+    if (_imageFile == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      var uri = Uri.parse('http://192.168.1.17:8000/upload');
+      var request = http.MultipartRequest('POST', uri);
+
+      // 'file' is the standard field name Greeshman's Python backend will likely expect
+      request.files.add(await http.MultipartFile.fromPath('file', _imageFile!.path));
+
+      var response = await request.send().timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Upload successful! AI tagging complete.')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Upload failed. Server returned: ${response.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Network error. Is the Python server running?')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUploading = false;
       });
     }
   }
@@ -125,12 +168,10 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             const SizedBox(height: 20),
             if (_imageFile != null)
-              FilledButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Image ready for API upload!')),
-                  );
-                },
+              _isUploading
+                  ? const CircularProgressIndicator()
+                  : FilledButton.icon(
+                onPressed: _uploadToServer,
                 icon: const Icon(Icons.cloud_upload),
                 label: const Text('Analyze & Upload'),
               ),
