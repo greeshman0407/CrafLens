@@ -86,6 +86,10 @@ class _UploadScreenState extends State<UploadScreen> {
   bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
 
+  // Controllers for the new text fields
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
@@ -98,6 +102,14 @@ class _UploadScreenState extends State<UploadScreen> {
   Future<void> _uploadToServer() async {
     if (_imageFile == null) return;
 
+    // Basic validation
+    if (_titleController.text.isEmpty || _priceController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title and price.')),
+      );
+      return;
+    }
+
     setState(() {
       _isUploading = true;
     });
@@ -106,8 +118,12 @@ class _UploadScreenState extends State<UploadScreen> {
       var uri = Uri.parse('http://192.168.1.17:8000/upload');
       var request = http.MultipartRequest('POST', uri);
 
-      // 'file' is the standard field name Greeshman's Python backend will likely expect
+      // Attach the image
       request.files.add(await http.MultipartFile.fromPath('file', _imageFile!.path));
+
+      // Attach the text data for Greeshman's backend
+      request.fields['title'] = _titleController.text;
+      request.fields['price'] = _priceController.text;
 
       var response = await request.send().timeout(const Duration(seconds: 10));
 
@@ -116,6 +132,7 @@ class _UploadScreenState extends State<UploadScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Upload successful! AI tagging complete.')),
           );
+          Navigator.pop(context); // Go back to dashboard after success
         }
       } else {
         if (mounted) {
@@ -131,9 +148,11 @@ class _UploadScreenState extends State<UploadScreen> {
         );
       }
     } finally {
-      setState(() {
-        _isUploading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -141,41 +160,96 @@ class _UploadScreenState extends State<UploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload Product'),
+        title: const Text('Draft Listing'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_imageFile != null)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ClipRRect(
+            // Image Preview Area
+            GestureDetector(
+              onTap: _takePhoto,
+              child: Container(
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.file(_imageFile!, height: 300, fit: BoxFit.cover),
+                  border: Border.all(color: Colors.grey.shade400, style: BorderStyle.solid),
                 ),
-              )
-            else
-              const Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Text('No product photo captured yet.', style: TextStyle(fontSize: 16)),
+                child: _imageFile != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(_imageFile!, fit: BoxFit.cover),
+                )
+                    : const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                    SizedBox(height: 8),
+                    Text('Tap to take product photo', style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
               ),
-            ElevatedButton.icon(
-              onPressed: _takePhoto,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Open Camera'),
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
             ),
-            const SizedBox(height: 20),
-            if (_imageFile != null)
-              _isUploading
-                  ? const CircularProgressIndicator()
-                  : FilledButton.icon(
-                onPressed: _uploadToServer,
-                icon: const Icon(Icons.cloud_upload),
-                label: const Text('Analyze & Upload'),
+            const SizedBox(height: 24),
+
+            // Product Details Form
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Product Title',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.edit),
               ),
+            ),
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Price (₹)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.currency_rupee),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // AI Tags Placeholder
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.auto_awesome, color: Colors.deepOrange),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'AI tags (material, category, etc.) will auto-generate here after upload.',
+                      style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Submit Button
+            _isUploading
+                ? const Center(child: CircularProgressIndicator())
+                : FilledButton.icon(
+              onPressed: _uploadToServer,
+              icon: const Icon(Icons.cloud_upload),
+              label: const Text('Analyze & Publish'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
           ],
         ),
       ),
