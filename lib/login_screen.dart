@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'signup_screen.dart';
 import 'buyer_dashboard.dart';
 import 'main.dart'; // This imports your UploadScreen
+import 'upload_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
