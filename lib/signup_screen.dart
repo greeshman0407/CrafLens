@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'signup_screen.dart';
-import 'buyer_dashboard.dart';
-import 'main.dart'; // This imports your UploadScreen
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   String _selectedRole = 'Commercial Buyer';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black), // Back button
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -24,10 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/Craflens_logo.png', height: 120),
-                const SizedBox(height: 16),
                 Text(
-                  'CrafLens',
+                  'Create Account',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -35,14 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'AI-Driven Market Linkage for Artisans',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey.shade600,
-                    letterSpacing: 0.5,
-                  ),
+                  'Join CrafLens to connect with artisans',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
+
+                // Role Selector
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
                   decoration: InputDecoration(
@@ -56,10 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
                     ),
                   ),
                   items: <String>['Commercial Buyer', 'Artisan']
@@ -75,6 +69,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Full Name Input
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Full Name',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Email Input
                 TextField(
                   decoration: InputDecoration(
                     hintText: 'Email Address',
@@ -92,6 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Password Input
                 TextField(
                   obscureText: true,
                   decoration: InputDecoration(
@@ -110,26 +127,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Register Button
                 SizedBox(
                   width: double.infinity,
                   height: 54,
                   child: FilledButton(
                     onPressed: () {
-                      if (_selectedRole == 'Commercial Buyer') {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BuyerDashboard(),
-                          ),
-                        );
-                      } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const UploadScreen(),
-                          ),
-                        );
-                      }
+                      // Navigate back to login screen after successful signup
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Account created successfully!')),
+                      );
+                      Navigator.pop(context);
                     },
                     style: FilledButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -140,9 +149,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: const Text('Login'),
+                    child: const Text('Sign Up'),
                   ),
+                  // ... Your existing Sign Up Button ends here ...
                 ),
+
                 const SizedBox(height: 32),
 
                 // --- ADD THIS NEW GOOGLE SECTION ---
@@ -167,10 +178,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Google Sign-In integration coming soon!')),
+                        const SnackBar(content: Text('Google Sign-Up integration coming soon!')),
                       );
                     },
-                    // Using a stylized 'G' text as a placeholder so you don't have to download new assets right now
                     icon: const Text(
                       'G',
                       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
@@ -190,30 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 // --- END OF NEW GOOGLE SECTION ---
 
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an account?",
-                      style: TextStyle(color: Colors.grey.shade700),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 32), // Add a little padding at the very bottom
               ],
             ),
           ),
