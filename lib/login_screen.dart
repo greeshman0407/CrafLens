@@ -55,7 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.handshake, size: 80, color: Theme.of(context).primaryColor),
+                Image.asset(
+                  'assets/Craflens_logo.png',
+                  height: 100, // Adjust this size if it looks too big or small on your Realme screen
+                ),
                 const SizedBox(height: 20),
                 Text(
                   'CrafLens',

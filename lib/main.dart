@@ -80,6 +80,13 @@ class UploadScreen extends StatefulWidget {
   @override
   State<UploadScreen> createState() => _UploadScreenState();
 }
+  Widget _buildTag(String label, BuildContext context) {
+    return Chip(
+      label: Text(label),
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      side: BorderSide.none,
+    );
+  }
 
 class _UploadScreenState extends State<UploadScreen> {
   File? _imageFile;

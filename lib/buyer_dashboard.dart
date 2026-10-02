@@ -39,7 +39,20 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
         itemCount: _marketItems.length,
         itemBuilder: (context, index) {
           final item = _marketItems[index];
-          return Card(
+          return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailsScreen(
+                      title: 'Terracotta Clay Pot',
+                      price: '450',
+                      artisanName: 'Local Artisan',
+                    ),
+                  ),
+                );
+              },
+              child: Card(
             elevation: 3,
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -78,8 +91,70 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
                 ),
               ],
             ),
+              )
           );
         },
+      ),
+    );
+  }
+}
+class ProductDetailsScreen extends StatelessWidget {
+  final String title;
+  final String price;
+  final String artisanName;
+
+  ProductDetailsScreen({
+    super.key,
+    required this.title,
+    required this.price,
+    required this.artisanName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 300,
+              color: Colors.grey.shade300,
+              child: const Icon(Icons.image, size: 100, color: Colors.grey),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '₹$price',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.green.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Crafted by: $artisanName',
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
