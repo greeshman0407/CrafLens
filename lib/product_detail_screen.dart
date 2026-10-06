@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cart_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String title;
@@ -141,8 +142,15 @@ class ProductDetailScreen extends StatelessWidget {
                   height: 56,
                   child: FilledButton(
                     onPressed: () {
+                      // 1. Show a quick confirmation
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Added to Cart!')),
+                      );
+
+                      // 2. Navigate to the Cart Screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CartScreen()),
                       );
                     },
                     style: FilledButton.styleFrom(

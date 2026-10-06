@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import 'product_detail_screen.dart';
+import 'cart_screen.dart';
 
 class BuyerDashboard extends StatefulWidget {
   const BuyerDashboard({super.key});
@@ -39,8 +40,9 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cart coming soon!')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartScreen()),
               );
             },
           ),
