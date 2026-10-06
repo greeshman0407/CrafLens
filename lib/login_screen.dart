@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'buyer_dashboard.dart';
-import 'main.dart'; // This imports your UploadScreen
+import 'main.dart';
 import 'upload_screen.dart';
+import 'artisan_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const UploadScreen(),
+                            builder: (context) => const ArtisanDashboard(),
                           ),
                         );
                       }

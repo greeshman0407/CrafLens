@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'artisan_dashboard.dart';
 import 'login_screen.dart';
 import 'buyer_dashboard.dart';
 import 'upload_screen.dart';
@@ -20,7 +20,7 @@ void main() async {
     if (userRole == 'Commercial Buyer') {
       initialScreen = const BuyerDashboard();
     } else {
-      initialScreen = const UploadScreen();
+      initialScreen = const ArtisanDashboard();
     }
   }
 
