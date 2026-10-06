@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'buyer_dashboard.dart';
 import 'main.dart'; // This imports your UploadScreen
@@ -115,7 +116,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 54,
                   child: FilledButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // 1. Save session data locally
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('isLoggedIn', true);
+                      await prefs.setString('userRole', _selectedRole);
+
+                      // Ensure the widget is still mounted before navigating
+                      if (!context.mounted) return;
+
+                      // 2. Navigate to the correct dashboard
                       if (_selectedRole == 'Commercial Buyer') {
                         Navigator.pushReplacement(
                           context,
