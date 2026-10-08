@@ -1,71 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'artisan_dashboard.dart';
+import 'login_screen.dart';
+import 'buyer_dashboard.dart';
+import 'upload_screen.dart';
 
-void main() {
-  runApp(const CrafLensApp());
+void main() async {
+  // Ensure Flutter engine is fully initialized before checking storage
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Check local storage for an active session
+  final prefs = await SharedPreferences.getInstance();
+  final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  final String userRole = prefs.getString('userRole') ?? 'Commercial Buyer';
+
+  // Determine which screen to show first
+  Widget initialScreen = const LoginScreen();
+  if (isLoggedIn) {
+    if (userRole == 'Commercial Buyer') {
+      initialScreen = const BuyerDashboard();
+    } else {
+      initialScreen = const ArtisanDashboard();
+    }
+  }
+
+  runApp(CrafLensApp(initialScreen: initialScreen));
 }
 
 class CrafLensApp extends StatelessWidget {
-  const CrafLensApp({super.key});
+  final Widget initialScreen;
+
+  const CrafLensApp({super.key, required this.initialScreen});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CrafLens Artisan Portal',
+      title: 'CrafLens',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         useMaterial3: true,
       ),
-      home: const ArtisanDashboard(),
-    );
-  }
-}
-
-class ArtisanDashboard extends StatefulWidget {
-  const ArtisanDashboard({super.key});
-
-  @override
-  State<ArtisanDashboard> createState() => _ArtisanDashboardState();
-}
-
-class _ArtisanDashboardState extends State<ArtisanDashboard> {
-  // A temporary mock list of products until the Python backend is connected
-  final List<Map<String, String>> _catalog = [
-    {"title": "Terracotta Clay Pot", "tags": "Handmade, Pottery"},
-    {"title": "Woven Bamboo Basket", "tags": "Eco-friendly, Storage"},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Catalog'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: ListView.builder(
-        itemCount: _catalog.length,
-        itemBuilder: (context, index) {
-          final product = _catalog[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              leading: const Icon(Icons.image, size: 50, color: Colors.grey),
-              title: Text(product["title"]!),
-              subtitle: Text("AI Tags: ${product["tags"]}"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Upload screen coming soon!')),
-          );
-        },
-        icon: const Icon(Icons.add_a_photo),
-        label: const Text('New Product'),
-      ),
+      home: initialScreen,
     );
   }
 }
